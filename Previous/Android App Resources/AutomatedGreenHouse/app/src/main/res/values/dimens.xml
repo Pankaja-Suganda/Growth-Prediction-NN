@@ -1,0 +1,29 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="nav_header_vertical_spacing">8dp</dimen>
+    <dimen name="nav_header_height">176dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="Title">16sp</dimen>
+    <dimen name="SubTitle">18sp</dimen>
+    <dimen name="Values">24sp</dimen>
+    <dimen name="Units">15sp</dimen>
+    <dimen name="Unit_Left_Margin">8dp</dimen>
+    <dimen name="Value_Left_Margin">35dp</dimen>
+    <dimen name="Divider_Top_Margin">8dp</dimen>
+    <dimen name="TitleToSub_Left_Margin">12dp</dimen>
+
+    <dimen name="Image_Height">230dp</dimen>
+    <dimen name="Image_Width">180dp</dimen>
+
+    <dimen name="Gauge_Height">90dp</dimen>
+    <dimen name="Gauge_Width">90dp</dimen>
+    <dimen name="Gauge_Val_Top_Margin">35dp</dimen>
+    <dimen name="Gauge_Unit_Top_Margin">40dp</dimen>
+    <dimen name="Gauge_Val_Size">12sp</dimen>
+    <dimen name="Gauge_Unit_Size">8sp</dimen>
+
+
+</resources>

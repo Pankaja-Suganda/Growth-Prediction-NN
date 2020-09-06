@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "220533151579",
+    "firebase_url": "https://automated-green-house-fae2e.firebaseio.com",
+    "project_id": "automated-green-house-fae2e",
+    "storage_bucket": "automated-green-house-fae2e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:220533151579:android:7e73da7526eae410ee6c7e",
+        "android_client_info": {
+          "package_name": "com.example.automatedgreenhouse"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "220533151579-l20o4g8e2ukelrmn4lu00bjfuea06vf0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.automatedgreenhouse",
+            "certificate_hash": "d467305dc82bc3d451b9a737eaecf11f396ae899"
+          }
+        },
+        {
+          "client_id": "220533151579-5v5bhrtr308a1lv5k4f6vampu5sm83fu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB27ZcQU7f2rIHtbhnLQ7vahnUSR5pjNzc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "220533151579-5v5bhrtr308a1lv5k4f6vampu5sm83fu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

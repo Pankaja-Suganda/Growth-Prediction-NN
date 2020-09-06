@@ -1,0 +1,47 @@
+Camera:
+camera link (important) - https://www.microchip.lk/product/usb-camera-for-raspberry-pi-2-model-b-b-a/
+camera link - https://www.microchip.lk/product/5mp-camera-module-for-raspberry-pi-3/
+
+humidity & temperature sensor
+link - https://www.microchip.lk/product/dht21-temperature-humidity-sensor-module-am2301/
+
+Light Sensor
+link - https://www.microchip.lk/product/gy-30-digital-optical-intensity-illumination-sensor-bh1750fvi-module-for-arduino/
+
+soil moisture sensor
+link - https://www.microchip.lk/product/soil-moisture-sensor-detection-module/
+
+
+By research paper
+carbon dioxide probe (Vaisala CARBOCAP GMP343, Vantaa, Finland)
+Temperature and relative humidity (Campbell Scientific CS215, Logan, UT, USA)
+
+
+variable displacement transducer (LVDT, Solartron, Bognor Regis, UK) sensor.
+Stem diameter was continuously monitored on these plants with a linear
+
+Growth measuring
+
+stem counting
+plant height
+plant weight
+leaves counting
+
+
+
+Steps to goal
+
+* Data preprocessing and data cleaning.
+• Data splitting into training, validation and test datasets.
+• DL/LSTM, SVR, and RF model design and use to generate one step ahead
+prediction.
+
+methods
+
+the most successful techniques are Artificial Neural Networks, Support Vector
+Regression (SVR), M5-prime Regression Trees, Random Forests (RF), and K-Nearest
+Neighbors
+
+ the DL technique (using a LSTM model)
+outperformed other traditional ML techniques, such as SVR(Support Vector Regression) and RF, in terms of MSE, RMSE
+and MAE error criteria

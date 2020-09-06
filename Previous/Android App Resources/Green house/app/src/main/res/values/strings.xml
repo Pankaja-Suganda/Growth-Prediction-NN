@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Automated Green House</string>
+    <string name="DashBoard_Tab">DashBoard</string>
+    <string name="Control_Tab">Control</string>
+    <string name="History_Tab">History</string>
+
+    <string name="Ap_Height">Approxi. Height</string>
+    <string name="Ap_Width">Approxi. Width</string>
+    <string name="Ap_Area">Approxi. Area</string>
+    <string name="Ref_Height">Reference Height</string>
+    <string name="Ref_Width">Reference Width</string>
+    <string name="Unit">mm</string>
+
+    <string name="Label_Humidity">Humidity</string>
+    <string name="Label_Temperature">Temperature</string>
+    <string name="Label_Light">Light</string>
+    <string name="Label_Moisture">Moisture</string>
+    <string name="button">test</string>
+
+</resources>

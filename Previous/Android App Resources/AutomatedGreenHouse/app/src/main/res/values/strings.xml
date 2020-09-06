@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">Automated Green House</string>
+    <string name="password">Password</string>
+    <string name="show_password">show password</string>
+    <string name="login">Login</string>
+    <string name="register_here">Register Here</string>
+    <string name="good_morning">Good Morning</string>
+    <string name="hi_welcome">Hi, WelCome</string>
+    <string name="todo">TODO</string>
+    <string name="user_name">User Name</string>
+
+    <string name="title_activity_navigate">Green House Panel</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_DashBoard">DashBoard</string>
+    <string name="menu_Control">Control</string>
+    <string name="menu_Graph">Graph and Analysis</string>
+    <string name="menu_SignOut">SignOut</string>
+    <string name="menu_Exit">Exit</string>
+
+    <string name="Unit_mm">mm</string>
+    <string name="Unit_cm">cm</string>
+    <string name="Unit_C">C</string>
+    <string name="Unit_Lux">Lux</string>
+    <string name="Unit_GM2">g/m2</string>
+    <string name="Unit_MC">% MC</string>
+
+    <string name="DashBoard_Moisture">Moisture</string>
+    <string name="DashBoard_Temperature">Temperature</string>
+    <string name="DashBoard_Humidity">Humidity</string>
+    <string name="DashBoard_Light">Light</string>
+
+    <string name="DashBoard_Plant_header">Plant Growth</string>
+    <string name="DashBoard_Reference_header">Reference</string>
+
+    <string name="PR_Height">Height :</string>
+    <string name="PR_Width">Width :</string>
+    <string name="PR_Area">Area :</string>
+
+    <string name="Graph_Title_HeightVsDate">The graph Of Date Vs Height, Width, Area</string>
+    <string name="Graph_Title_TemperatureVsHeight">The graph Of Height Vs Temperature</string>
+    <string name="Graph_Title_HumidityVsHeight">The graph Of Height Vs Humidity</string>
+    <string name="Graph_Title_LightVSHeight">The graph Of Height Vs Light</string>
+    <string name="Graph_Title_MoistureVSHeight">The graph Of Height Vs Moisture</string>
+
+    <string name="Title_Date">Date</string>
+    <string name="Title_Height">Plant Height (mm)</string>
+    <string name="Title_Widht">Plant Width (mm)</string>
+    <string name="Title_Area">Plant Area (mm)</string>
+    <string name="Title_Temperature">Temperature(C)</string>
+    <string name="Title_HumidityV">Humidity (g/m2)</string>
+    <string name="Title_Light">Light (Lux)</string>
+    <string name="Title_Moisture">Moisture (%MC)</string>
+
+    <string name="Image_Content">Image</string>
+</resources>

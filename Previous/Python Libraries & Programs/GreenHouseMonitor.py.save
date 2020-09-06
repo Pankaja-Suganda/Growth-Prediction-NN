@@ -1,0 +1,520 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Feb 23 14:17:30 2020
+@author: Pankaja Suganda
+"""
+import numpy as np
+import tkinter as GHMonitor
+from tkinter import ttk as widget
+from gaugelib import DrawGauge2 as Gauge
+from PIL import ImageTk, Image
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+import csv as reader
+        
+        
+def getImages(ID):
+    print("Id :")
+    print (ID)
+    SImg = Image.open('Plant Images/Plant_'+ID+'.jpg')
+    SImg = SImg.resize((300, 410), Image.ANTIALIAS)
+    LImg = SImg.resize((700, 900), Image.ANTIALIAS)
+    #        
+    SProcimg = Image.open('Plant Images/Procssed_Plant_Image.jpg')
+    SProcimg = SProcimg.resize((300, 410), Image.ANTIALIAS)
+    LProcimg = SProcimg.resize((700, 900), Image.ANTIALIAS)
+    Imgs = np.array([ ImageTk.PhotoImage(SImg), ImageTk.PhotoImage(SProcimg), 
+                     ImageTk.PhotoImage(LImg), ImageTk.PhotoImage(LProcimg)])
+    return Imgs
+
+def SaveCData(column,data):
+    filepath = "/home/pi/Desktop/Green House/ControlData.csv"
+    fieldnames = ['PPTime','Moisture','FTime','STime','TTime','ALength','Awidth']
+    x=[]
+    with open(filepath,'r') as csvfile:
+        readData = reader.DictReader(csvfile)
+        for row in readData:
+            x=row
+    csvfile.close()
+    x[column]=data
+    with open(filepath,'w') as myfile:
+        writer = reader.DictWriter(myfile,fieldnames)
+        writer.writeheader() ## Headers Write to the CSV
+        writer.writerow(x)
+    myfile.close()
+
+
+def TakeCData():
+    filepath = "/home/pi/Desktop/Green House/ControlData.csv"
+    x=""
+    with open(filepath,'r') as csvfile:
+        readData = reader.DictReader(csvfile)
+        for row in readData:
+            x=row
+    csvfile.close()
+    print (x)
+    return x
+
+def CheckTxtTime(text,index):
+	charArr = list(text)
+	if (index==0):
+		if (len(charArr)==5):
+			for i in range(o,len(charArr)):
+				if not (i==2) and not (charArr[i].isdigit()):
+					return False
+			if (charArr[2]==':'): return True
+			else: return False
+		else:
+			return False
+
+	elif (index==1):
+		if(len(charArr)<=):
+			for i in range(0,len(charArr)):
+				if not (charArr[i].isdigit()):
+					return False
+			return True
+		else:
+			return False
+
+class Application(GHMonitor.Frame):
+    
+    def __init__(self, master=None):
+        super().__init__(master)
+        ImgArr = np.array(['Icon/SMoisture.png','Icon/Humidity.png','Icon/Light.jpg'])
+        self.Units =  ['','','mm','mm',' %','mm','mm',' Lux',' C',' MC%',' M']
+        
+        self.IconArr = []
+        for i in range(len(ImgArr)):
+            icon = Image.open(ImgArr[i])
+            icon = icon.resize((120, 120), Image.ANTIALIAS)
+            self.IconArr.append(ImageTk.PhotoImage(icon))
+       
+        self.master = master
+        self.master.title("Green House Monitor")
+#         self.master.state('zoomed')
+        self.pack()
+        self.create_widgets()
+        self.ValuesUpdate()
+    def create_widgets(self):
+        #Creating Tabs
+        TabParent = widget.Notebook(self.master,height=925,width=1820)
+        TabMonitor = widget.Frame(TabParent)
+        TabControl = widget.Frame(TabParent)
+        TabImage = widget.Frame(TabParent)
+        TabParent.add(TabMonitor, text="    Monitoring    ")
+        TabParent.add(TabControl, text="    Controlling    ")
+        TabParent.add(TabImage, text=  "    Images    ")
+        TabParent.pack(fill= 'both',expand=1, )
+        TabParent.place(x=90,y=50)
+        TabImage.state = GHMonitor.DISABLED
+        
+        #Draw a verticle and Horizontal Margin
+        GHMonitor.Label(self.master,height = '2', width = '10'  ,bg='green').pack(fill=GHMonitor.X)
+        GHMonitor.Label(self.master,height = '10', width = '10'  ,bg='dimgrey').pack(side=GHMonitor.LEFT, fill=GHMonitor.Y)
+        
+        self.Refresh = GHMonitor.Button(self.master,height = '3', width = '6',command=self.ValuesUpdate,bg='light gray', text='Refresh')
+        self.Refresh.place(x=3,y=920)
+        self.Id = GHMonitor.Label(self.master, text="",fg='white',bg='green')
+        self.Id.place(x=0,y=8)
+        self.Date = GHMonitor.Label(self.master, text="",fg='white',bg='green')
+        self.Date.place(x=1700,y=8)
+        
+        #Placed a Gauge Farme & Gauges
+        GaugeFrame = GHMonitor.LabelFrame(TabMonitor, text="Gauges",height=445,width=450,font = ("Times New Roman",11,"bold"))
+        GaugeFrame.place(x=650, y=3)
+        
+        self.gaugeTem = Gauge(GaugeFrame, max_value=100, min_value=0, size=200, bg_col='red', unit = "C",label="Temperature",bg_sel = 2)
+        self.gaugeTem.place( x=5, y=5)
+        self.gaugeHum = Gauge(GaugeFrame, max_value=100, min_value=0, size=200, bg_col='Blue', unit = "%MC",label="Humidity",bg_sel = 2)
+        self.gaugeHum.place( x=5, y=210)
+        self.gaugeMoi = Gauge(GaugeFrame, max_value=100, min_value=0, size=200, bg_col='Green', unit = "%MC",label="Moisture",bg_sel = 2)
+        self.gaugeMoi.place( x=210, y=5)
+        self.gaugeLight = Gauge(GaugeFrame, max_value=100, min_value=0, size=200, bg_col='Yellow', unit = "Lux",label="Light",bg_sel = 2)
+        self.gaugeLight.place(x=210, y=210)
+        
+        #Placed a Image Farme & Images
+        ImageFrame = GHMonitor.LabelFrame(TabMonitor, text="Images", height=445, width=650, font = ("Times New Roman",11,"bold"))
+        ImageFrame.place(x=1130, y=3)
+        
+        self.CurrentImg = GHMonitor.Canvas(ImageFrame, width=300, height=400,bg='green')
+        self.CurrentImg.place(x=10, y=10)
+        self.ProgImg = GHMonitor.Canvas(ImageFrame, width=300, height=400,bg='green')
+        self.ProgImg.place(x=320, y=10)
+        
+        # place aPlant details
+        PlantDframe = GHMonitor.LabelFrame(TabMonitor, text="",height=440,width=300)
+        PlantDframe.place(x=10, y=10)
+        GHMonitor.Label(PlantDframe, text="Plant Details",bg='orange',height = 3 ,width = 33,
+                        font = ("Times New Roman",12,"bold")).place(x=10,y=25)
+        
+        GHMonitor.Label(PlantDframe, text="Height (mm)",bg='white',height = 2 ,width = 38,
+                        font = ("Times New Roman",11,"bold")).place(x=10,y=115)
+        self.lblPlantHeight = GHMonitor.Label(PlantDframe, text="Height",bg='white',height = 2 ,width = 33)
+        self.lblPlantHeight.place(x=10,y=138)
+        
+        GHMonitor.Label(PlantDframe, text="Width (mm)",bg='white',height = 2 ,width = 38,
+                        font = ("Times New Roman",11,"bold")).place(x=10,y=195)
+        self.lblPlantWidth = GHMonitor.Label(PlantDframe, text="Width",bg='white',height = 2 ,width = 33)
+        self.lblPlantWidth.place(x=10,y=238)
+        
+        GHMonitor.Label(PlantDframe, text="Area Persentage(%)",bg='white',height = 2 ,width = 38,
+                        font = ("Times New Roman",11,"bold")).place(x=10,y=295)
+        self.lblPlantAreaPres = GHMonitor.Label(PlantDframe, text="Width",bg='white',height = 2 ,width = 33)
+        self.lblPlantAreaPres.place(x=10,y=338)
+        
+        # place a Reference details
+        RefDframe = GHMonitor.LabelFrame(TabMonitor, text="",height=440,width=300)
+        RefDframe.place(x=330, y=10)
+        GHMonitor.Label(RefDframe, text="Reference Details",bg='light green',height = 3 ,width = 33,
+                        font = ("Times New Roman",12,"bold")).place(x=10,y=25)
+        GHMonitor.Label(RefDframe, text="Height (mm), Actual : 20 mm",bg='white',height = 2 ,width = 38,
+                        font = ("Times New Roman",11,"bold")).place(x=10,y=95)
+        self.lblRefHeight = GHMonitor.Label(RefDframe, text="Height",bg='white',height = 2 ,width = 33)
+        self.lblRefHeight.place(x=10,y=138)
+        
+        GHMonitor.Label(RefDframe, text="Width (mm) , Actual : 20 mm",bg='white',height = 2 ,width = 38,
+                        font = ("Times New Roman",11,"bold")).place(x=10,y=195)
+        self.lblReftWidth = GHMonitor.Label(RefDframe, text="Width",bg='white',height = 2 ,width = 33)
+        self.lblReftWidth.place(x=10,y=238)
+        
+        GHMonitor.Label(RefDframe, text="Area (%)",bg='white',height = 2 ,width = 38,
+                        font = ("Times New Roman",11,"bold")).place(x=10,y=295)
+        self.lblRefArea = GHMonitor.Label(RefDframe, text="Width",bg='white',height = 2 ,width = 33)
+        self.lblRefArea.place(x=10,y=338)
+        
+        #Create a Graph
+        self.Graphframe = GHMonitor.LabelFrame(TabMonitor, text="Graphs",height=475,width=1770, font = ("Times New Roman",11,"bold"))
+        self.Graphframe.place(x=10, y=450)
+        self.fig = Figure(figsize=(5,5), dpi=100)
+        
+        self.graph = self.fig.add_subplot(111)
+        self.canvas = FigureCanvasTkAgg(self.fig, self.Graphframe)
+        self.canvas.get_tk_widget().place(x=20, y=25,height=420,width=1100)
+        
+        #Graph Controlers
+        GHMonitor.Label(self.Graphframe, text="X axis Variable : ", font = ("Times New Roman",12)).place(x=1145,y=20)
+        self.CXIcon = GHMonitor.Canvas(self.Graphframe, height = 142,width = 150,bg='light blue')
+        self.CXIcon.place(x=1145,y=50)
+       
+        self.lblCurrentX = GHMonitor.Label(self.Graphframe, text="",bg ="light blue",width=30 ,height=1, anchor = 'w',padx=40,
+                                           font = ("Times New Roman",14,"bold"))
+        self.lblCurrentX.place(x=1305,y=50)
+        self.lblCurrentXVal = GHMonitor.Label(self.Graphframe, text="",bg ="white",width=18 ,height=3 , anchor = 'nw',padx=40,
+                                              font = ("MS Serif",18))
+        self.lblCurrentXVal.place(x=1305,y=85)
+        
+        GHMonitor.Label(self.Graphframe, text="Y axis Variable : ", font = ("Times New Roman",12)).place(x=1145,y=220)
+        self.CYIcon = GHMonitor.Canvas(self.Graphframe, height = 142,width = 150,bg='orange')
+        self.CYIcon.place(x=1145,y=250)
+        self.lblCurrentY = GHMonitor.Label(self.Graphframe, text=" ",bg ="orange",width=30 ,height=1, anchor = 'w',padx=40,
+                                           font = ("Times New Roman",14,"bold"))
+        self.lblCurrentY.place(x=1305,y=250)
+        self.lblCurrentYVal = GHMonitor.Label(self.Graphframe, text="",bg ="white",width=18 ,height=3 , anchor = 'nw', padx=40,
+                                              font = ("MS Serif",18))
+        self.lblCurrentYVal.place(x=1305,y=285)
+        
+        icon = Image.open('Icon/SMoisture.png')
+        icon = icon.resize((120, 120), Image.ANTIALIAS)
+        self.XiconSupport = self.CXIcon.create_image(75, 71, image = ImageTk.PhotoImage(icon))
+        self.YiconSupport  = self.CYIcon.create_image(75, 71, image = ImageTk.PhotoImage(icon))
+        
+        self.btnPlot = GHMonitor.Button(self.Graphframe, text="Plot", height = 1, width = 14,
+                                        font = ("Times New Roman",11,"bold"), state=GHMonitor.DISABLED)
+        self.btnPlot.place(x=1533,y=405)
+        self.btnPlot['command'] = self.PlotClick
+        self.ComValues = ['ID','DateTime','Height','Width','AreaPresentage','RefHeight','RefWidth','Light','Temperature','Humidity','Moisture']
+        self.XaxisCombo = widget.Combobox(self.Graphframe, text = "Select X-axis Parameter",width=42,state='readonly',values=self.ComValues)
+        self.XaxisCombo.place(x=1305,y=20)
+        self.XaxisCombo.bind("<<ComboboxSelected>>", self.XCombo)
+        self.YaxisCombo = widget.Combobox(self.Graphframe, text = "Select Y-axis Parameter",width=42,state=GHMonitor.DISABLED,values=self.ComValues)
+        self.YaxisCombo.place(x=1305,y=220)
+        self.YaxisCombo.bind("<<ComboboxSelected>>", self.YCombo)
+        
+        ##Tab Controlling
+        self.Pumpframe = GHMonitor.LabelFrame(TabControl, text="Water Pump Setting",height=455,width=800)
+        self.Pumpframe.place(x=10, y=5)
+        self.PScheframe = GHMonitor.LabelFrame(self.Pumpframe, text="",height=400,width=300)
+        self.PScheframe.place(x=480, y=10)
+        self.PAframe = GHMonitor.LabelFrame(self.Pumpframe, text="",height=400,width=450)
+        self.PAframe.place(x=10, y=10)
+        
+        #watering System settings
+        GHMonitor.Label(self.PScheframe, text="Watering Schedule : ", font = ("Times New Roman",14,"bold")).place(x=10,y=10)
+        GHMonitor.Label(self.PScheframe, text="1st Time (00:00)\t: ", font = ("Times New Roman",12)).place(x=10,y=60)
+        GHMonitor.Label(self.PScheframe, text="2nd Time (00:00)\t: ", font = ("Times New Roman",12)).place(x=10,y=90)
+        GHMonitor.Label(self.PScheframe, text="3rd Time (00:00)\t: ", font = ("Times New Roman",12)).place(x=10,y=120)
+        
+        self.txtFTime = widget.Entry(self.PScheframe,width = 12)
+        self.txtFTime.place(x=160,y=60)
+        self.txtSTime = widget.Entry(self.PScheframe,width = 12)
+        self.txtSTime.place(x=160,y=90)
+        self.txtTTime = widget.Entry(self.PScheframe,width = 12)
+        self.txtTTime.place(x=160,y=120)
+        
+        self.btnsetSche = GHMonitor.Button(self.PScheframe, text="Set", height = 1, width = 10,
+                                        font = ("Times New Roman",11,"bold"),command = self.SetWateringSchedule)
+        self.btnsetSche.place(x=160,y=160)
+        GHMonitor.Label(self.PScheframe, text="Current Schedule : ", font = ("Times New Roman",14,"bold")).place(x=10,y=240)
+        self.Sone = GHMonitor.Label(self.PScheframe, text="1st Time    :",font = ("Times New Roman",12))
+        self.Sone.place(x=20,y=290)
+        self.Stwo = GHMonitor.Label(self.PScheframe, text="2nd Time    :",font = ("Times New Roman",12))
+        self.Stwo.place(x=20,y=320)
+        self.Sthree = GHMonitor.Label(self.PScheframe, text="3rd Time    :",font = ("Times New Roman",12))
+        self.Sthree.place(x=20,y=350)
+        
+        GHMonitor.Label(self.PAframe, text="Water Amount setting : ", font = ("Times New Roman",12,"bold")).place(x=20,y=10)
+        GHMonitor.Label(self.PAframe, text="pump powering time (ms)\t:", font = ("Times New Roman",12)).place(x=40,y=50)
+        GHMonitor.Label(self.PAframe, text="Moisture Content\t\t:", font = ("Times New Roman",12)).place(x=40,y=80)
+        self.txtPPT = widget.Entry(self.PAframe,width = 12)
+        self.txtPPT.place(x=250,y=50)
+        self.txtMC = widget.Entry(self.PAframe,width = 12)
+        self.txtMC.place(x=250,y=80)
+        
+        self.btnsetA = GHMonitor.Button(self.PAframe, text="Set", height = 1, width = 10,
+                                        font = ("Times New Roman",11,"bold"),command = self.SetPOntime)
+        self.btnsetA.place(x=250,y=120)
+        GHMonitor.Label(self.PAframe, text="Current Water Amount setting : ", font = ("Times New Roman",12,"bold")).place(x=20,y=200)
+        self.CPpower = GHMonitor.Label(self.PAframe, text="pump powering time (ms)    :", font = ("Times New Roman",12))
+        self.CPpower.place(x=40,y=230)
+        self.PMoisture = GHMonitor.Label(self.PAframe, text="Moisture Content           :", font = ("Times New Roman",12))
+        self.PMoisture.place(x=40,y=260)
+
+        #moisture Sensor testing
+        self.TMoisture = GHMonitor.LabelFrame(TabControl, text="",height=250,width=980)
+        self.TMoisture.place(x=820, y=15)
+        GHMonitor.Label(self.TMoisture, text="Moisture Sensor Testing : ", font = ("Times New Roman",14,"bold")).place(x=20,y=10)
+        self.MAnalog = GHMonitor.Label(self.TMoisture, text="Analog Read      :", font = ("Times New Roman",12)).place(x=40,y=70)
+        self.MMapped = GHMonitor.Label(self.TMoisture, text="Mapped Value    :", font = ("Times New Roman",12)).place(x=40,y=100)
+        self.MMoisture = GHMonitor.Label(self.TMoisture, text="Moistre Content :", font = ("Times New Roman",12)).place(x=40,y=130)
+        GHMonitor.Label(self.TMoisture, text="Sensor Message     :", font = ("Times New Roman",12,"bold")).place(x=350,y=70)
+        self.MError = GHMonitor.Label(self.TMoisture, text="This is Error Message From a Moisture Sensor", font = ("Times New Roman",12))
+        self.MError.place(x=550,y=70)
+        self.Mtest = GHMonitor.Button(self.TMoisture, text="Test", height = 1, width = 10,
+                                        font = ("Times New Roman",11,"bold"), state=GHMonitor.DISABLED)
+        self.Mtest.place(x=200,y=170)
+        
+        #Light Sensor testing
+        self.TLight = GHMonitor.LabelFrame(TabControl, text="",height=200,width=980)
+        self.TLight.place(x=820, y=280)
+        GHMonitor.Label(self.TLight, text="Light Sensor Testing : ", font = ("Times New Roman",14,"bold")).place(x=20,y=10)
+        self.LLight = GHMonitor.Label(self.TLight, text="Light Intensity :", font = ("Times New Roman",12)).place(x=40,y=80)
+        GHMonitor.Label(self.TLight, text="Sensor Message     :", font = ("Times New Roman",12,"bold")).place(x=350,y=70)
+        self.LError = GHMonitor.Label(self.TLight, text="This is Error Message From a Moisture Sensor", font = ("Times New Roman",12))
+        self.LError.place(x=550,y=70)
+        self.Ltest = GHMonitor.Button(self.TLight, text="Test", height = 1, width = 10,
+                                        font = ("Times New Roman",11,"bold"), state=GHMonitor.DISABLED)
+        self.Ltest.place(x=200,y=120)
+        
+        #Temperature & Humidity Sensor Testing
+        self.TTemHum = GHMonitor.LabelFrame(TabControl, text="",height=250,width=980)
+        self.TTemHum.place(x=820, y=500)
+        GHMonitor.Label(self.TTemHum, text="Temperature & Humidity  Sensor Testing : ", font = ("Times New Roman",14,"bold")).place(x=20,y=10)
+        self.TTem = GHMonitor.Label(self.TTemHum, text="Temperature :", font = ("Times New Roman",12)).place(x=40,y=80)
+        self.THum = GHMonitor.Label(self.TTemHum, text="Humidity :", font = ("Times New Roman",12)).place(x=40,y=110)
+        self.THHeatI = GHMonitor.Label(self.TTemHum, text="Heat Index :", font = ("Times New Roman",12)).place(x=40,y=140)
+        GHMonitor.Label(self.TTemHum, text="Sensor Message     :", font = ("Times New Roman",12,"bold")).place(x=350,y=80)
+        self.THError = GHMonitor.Label(self.TTemHum, text="This is Error Message From a Moisture Sensor", font = ("Times New Roman",12))
+        self.THError.place(x=550,y=70)
+        self.THtest = GHMonitor.Button(self.TTemHum, text="Test", height = 1, width = 10,
+                                        font = ("Times New Roman",11,"bold"), state=GHMonitor.DISABLED)
+        self.THtest.place(x=200,y=170)
+        #Fan and Pump Testing
+        
+        self.TFP = GHMonitor.LabelFrame(TabControl, text="",height=150,width=980)
+        self.TFP.place(x=820, y=770)
+        GHMonitor.Label(self.TFP, text="Pump Testing    : ", font = ("Times New Roman",14)).place(x=20,y=30)
+        GHMonitor.Label(self.TFP, text="Fan Testing     : ", font = ("Times New Roman",14)).place(x=20,y=90)
+        self.TPOnbtn = GHMonitor.Button(self.TFP, text="Pump On", height = 1, width = 10,
+                                        font = ("Times New Roman",11,"bold"), state=GHMonitor.DISABLED)
+        self.TPOnbtn.place(x=300,y=30)
+        self.TPOffbtn = GHMonitor.Button(self.TFP, text="Pump Off", height = 1, width = 10,
+                                        font = ("Times New Roman",11,"bold"), state=GHMonitor.DISABLED)
+        self.TPOffbtn.place(x=450,y=30)
+        self.PumpState = GHMonitor.Canvas(self.TFP, width=150, height=30,bg='light green')
+        self.PumpState.place(x=700,y=30)
+        
+        self.TFOnbtn = GHMonitor.Button(self.TFP, text="Fan On", height = 1, width = 10,
+                                        font = ("Times New Roman",11,"bold"), state=GHMonitor.DISABLED)
+        self.TFOnbtn.place(x=300,y=90)
+        self.TFOffbtn = GHMonitor.Button(self.TFP, text="Fan Off", height = 1, width = 10,
+                                        font = ("Times New Roman",11,"bold"), state=GHMonitor.DISABLED)
+        self.TFOffbtn.place(x=450,y=90)
+        self.FanState = GHMonitor.Canvas(self.TFP, width=150, height=30,bg='light green')
+        self.FanState.place(x=700,y=90)
+        
+        #Image Testing
+        self.TestImage = GHMonitor.LabelFrame(TabControl, text="Camera Testing",height=455,width=800)
+        self.TestImage.place(x=10, y=470)
+        self.TestImg = GHMonitor.Canvas(self.TestImage, width=300, height=400,bg='green')
+        self.TestImg.place(x=10,y=10)
+        self.ImgCapture= GHMonitor.Button(self.TestImage, text="Test Image Capture", height = 1, width = 15,
+                                        font = ("Times New Roman",11,"bold"), state=GHMonitor.DISABLED)
+        self.ImgCapture.place(x=350,y=10)
+        GHMonitor.Label(self.TestImage, text="Image Parameters     :", font = ("Times New Roman",12,"bold")).place(x=350,y=60)
+        self.ImgLength = GHMonitor.Label(self.TestImage, text= "Pixel Length  :", font = ("Times New Roman",12)).place(x=360,y=100)
+        self.ImgWidth = GHMonitor.Label(self.TestImage, text=  "Pixel Width   :", font = ("Times New Roman",12)).place(x=360,y=130)
+        self.ImgDensity = GHMonitor.Label(self.TestImage, text="Pixel Density :", font = ("Times New Roman",12)).place(x=360,y=160)
+        
+        GHMonitor.Label(self.TestImage, text="Reference Parameters     :", font = ("Times New Roman",12,"bold")).place(x=350,y=200)
+        self.refLength = GHMonitor.Label(self.TestImage, text= "Pixel Length  :", font = ("Times New Roman",12)).place(x=360,y=240)
+        self.refWidth = GHMonitor.Label(self.TestImage, text=  "Pixel Width   :", font = ("Times New Roman",12)).place(x=360,y=270)
+
+        self.AHeightVal = ""
+        self.AWidthVal =""
+        GHMonitor.Label(self.TestImage, text="Reference Actual Size     :", font = ("Times New Roman",12,"bold")).place(x=350,y=310)
+        GHMonitor.Label(self.TestImage, text= "Actual Height\t:", font = ("Times New Roman",12)).place(x=360,y=350)
+        GHMonitor.Label(self.TestImage, text=  "Actual Width\t:", font = ("Times New Roman",12)).place(x=360,y=380)
+        self.txtImgHgt = widget.Entry(self.TestImage,width = 12)
+        self.txtImgHgt.place(x=550,y=350)
+        self.txtImgWdt = widget.Entry(self.TestImage,width = 12)
+        self.txtImgWdt.place(x=550,y=380)
+        
+        self.THtest = GHMonitor.Button(self.TestImage, text="Set", height = 1, width = 10,font = ("Times New Roman",11,"bold"))
+        self.THtest.place(x=680,y=350)
+        self.THtest['command'] = self.SetRefActualSize
+        
+        self.refHW = GHMonitor.Label(self.TestImage, text=  "", font = ("Times New Roman",9,"bold"))
+        self.refHW.place(x=450,y=405)
+        
+        #Tab Image
+        self.LCurrentImg = GHMonitor.Canvas(TabImage, width=700, height=900,bg='green')
+        self.LCurrentImg.place(x=10, y=10)
+        self.LProgImg = GHMonitor.Canvas(TabImage, width=700, height=900,bg='green')
+        self.LProgImg.place(x=730, y=10)
+    def SetWateringSchedule(self):
+        TakeCData()
+        SaveCData('FTime',self.txtFTime.get())
+        SaveCData('STime',self.txtSTime.get())
+        SaveCData('TTime',self.txtTTime.get())
+        TakeCData()
+        
+    def SetPOntime(self):
+        TakeCData()
+        SaveCData('PPTime',self.txtPPT.get())
+        SaveCData('Moisture',self.txtMC.get())
+        TakeCData()
+        
+    def SetRefActualSize(self):
+        self.THtest['state'] = GHMonitor.DISABLED
+        self.txtImgWdt['text'] = ''
+        self.txtImgHgt['text'] = ''
+        TakeCData()
+        SaveCData('ALength',self.txtImgHgt.get())
+        SaveCData('Awidth',self.txtImgWdt.get())
+        TakeCData()
+    
+        
+    def ImageUpdate(self,Arr):
+        self.CurrentImg.create_image(152, 200, image = Arr[0])
+        self.ProgImg.create_image(152, 200, image = Arr[1])
+        self.LCurrentImg.create_image(352, 452, image = Arr[2])
+        self.LProgImg.create_image(352, 452, image = Arr[3])
+            
+    def ValuesUpdate(self):
+        filepath = "/home/pi/Desktop/Green House/DataMonitor.csv"
+        ComValues = np.array(['ID','DateTime','Height','Width','AreaPresentage','RefHeight','RefWidth','ImageUri','Light','Temperature','Humidity','Moisture'])
+        LastRow = []
+        with open(filepath,'r') as csvfile:
+                readData = reader.DictReader(csvfile)
+                for row in readData:
+                    LastRow.clear()
+                    for i in range ((len(ComValues))):
+                        LastRow.append(row[ComValues[i]])
+        csvfile.close()
+        self.lblPlantHeight["text"] = LastRow[2]
+        self.lblPlantWidth["text"] = LastRow[3]
+        self.lblPlantAreaPres["text"] = LastRow[4]
+        self.lblRefHeight["text"] = LastRow[5]
+        self.lblReftWidth["text"] = LastRow[6]
+        self.lblRefArea["text"] = LastRow[7]
+        self.gaugeLight.set_value(float(LastRow[8]))
+        self.gaugeTem.set_value(float(LastRow[9]))
+        self.gaugeHum.set_value(float(LastRow[10]))
+        self.gaugeMoi.set_value(float(LastRow[11]))
+        self.CID = LastRow[0]
+        self.Id['text'] = 'Current Data ID : '+LastRow[0]
+        self.Date['text'] = 'Date & Time : '+LastRow[1]
+        imgArr = getImages(LastRow[0])
+        self.ImageUpdate(imgArr)
+        
+        #filling Current Controlling Values
+        fieldnames = ['PPTime','Moisture','FTime','STime','TTime','ALength','Awidth']
+        CData = TakeCData()
+        self.Sone['text'] = "1st Time\t\t:\t"+CData['FTime']
+        self.Stwo["text"] = "2nd Time\t\t:\t"+CData['STime']
+        self.Sthree["text"] = "3rd Time\t\t:\t"+CData['TTime']
+        self.CPpower["text"] = "pump powering time\t:\t"+CData['PPTime']+" ms"
+        self.PMoisture["text"] = "Moisture Content\t\t:\t"+CData['Moisture']+ " %"
+        self.refHW["text"] = "Current Width : "+CData['Awidth']+" mm,  Height : "+CData['ALength']+" mm "
+        print (CData)
+        print (str(CData['Moisture']))
+        
+        return LastRow
+        
+    def XCombo(self,event):
+        val = self.XaxisCombo.get()
+        dataArr = self.ValuesUpdate()
+        newArr=[]
+        for i in range (len(self.ComValues)):
+            if self.ComValues[i] == val:
+                imgIndex = i
+            else:
+                newArr.append(self.ComValues[i])
+        self.CXIcon.itemconfig(self.XiconSupport,image=self.IconArr[imgIndex])
+        self.YaxisCombo['values'] = newArr
+        self.lblCurrentX['text'] = str(val)
+        self.lblCurrentXVal['text'] = dataArr[imgIndex] +' '+self.Units[imgIndex]
+        self.YaxisCombo['state'] = GHMonitor.NORMAL
+        self.XaxisCombo['state'] = GHMonitor.DISABLED
+        
+    def YCombo(self,event):
+        Index = self.ComValues.index(self.YaxisCombo.get())
+        dataArr = self.ValuesUpdate()
+        self.lblCurrentY['text'] = self.YaxisCombo.get()
+        self.CYIcon.itemconfig(self.YiconSupport,image=self.IconArr[Index])
+        self.YaxisCombo['state'] = GHMonitor.DISABLED
+        self.btnPlot['state'] =  GHMonitor.NORMAL
+        self.lblCurrentYVal['text'] = dataArr[Index] + ' '+self.Units[Index]
+        
+    def PlotClick(self):
+        self.YaxisCombo['values'] = self.ComValues
+        self.XaxisCombo['values'] = self.ComValues
+        self.XaxisCombo['state'] = GHMonitor.NORMAL
+        self.GraphPlotting(self.XaxisCombo.get(),self.YaxisCombo.get(),
+                           self.Units[self.ComValues.index(self.XaxisCombo.get())],
+                           self.Units[self.ComValues.index(self.YaxisCombo.get())])
+        
+        
+    def GraphPlotting(self,XTitle,YTitle,XU,YU):
+            filepath = "/home/pi/Desktop/Green House/DataMonitor.csv"
+            XData = []
+            YData = []
+            with open(filepath,'r') as csvfile:
+                readData = reader.DictReader(csvfile)
+                for row in readData:
+                    XData.append(row[XTitle])
+                    YData.append(row[YTitle])
+            csvfile.close()
+            self.graph.clear()
+            self.graph.set_title('The Graph Of ' + YTitle+self.LabelAdjust(YU) +' & ' + XTitle+self.LabelAdjust(XU))
+            self.graph.set_xlabel(XTitle+self.LabelAdjust(XU))
+            self.graph.set_ylabel(YTitle+self.LabelAdjust(YU))
+            self.graph.plot(XData,YData,c='r')
+            self.graph.fill(XData,YData,c='r', alpha =0.3)
+            self.canvas = FigureCanvasTkAgg(self.fig, self.Graphframe)
+            self.canvas.get_tk_widget().place(x=20, y=25,height=420,width=1100)
+            
+    def LabelAdjust(self,unit):
+        if(unit==''): return unit
+        else:         return ' ('+unit+')'
+
+
+
+    
+window = GHMonitor.Tk()
+app = Application(window)
+Imgs = getImages(app.CID)
+app.ImageUpdate(Imgs)
+app.mainloop()
+
